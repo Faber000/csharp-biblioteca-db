@@ -7,6 +7,17 @@ SqlConnection connessioneSql = new SqlConnection(stringaDiConnessione);
 try
 {
     connessioneSql.Open();
+    string titolo = "Harry Potter";
+    string autore = "J. K. Rowling";
+    int anno = 1999;
+    string settore = "Romanzo";
+    int isRented = 0;
+    int numPagine = 500;
+    string scaffale = "A5";
+
+    string query = $"INSERT INTO Libro(Titolo, Autore, Anno, Settore, isRented, NumPagine, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{numPagine}', '{scaffale}')";
+    SqlCommand cmd = new SqlCommand(query, connessioneSql);
+    cmd.ExecuteNonQuery();
 } catch (Exception ex)
 {
     Console.WriteLine(ex.ToString());
@@ -14,6 +25,7 @@ try
 {
     connessioneSql.Close();
 }
+
 
 // lista di oggetti Documento
 List<Documento> ListaDocumenti = new List<Documento>();
