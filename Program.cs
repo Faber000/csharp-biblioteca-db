@@ -4,28 +4,6 @@ using System.Data.SqlClient;
 string stringaDiConnessione = "Data Source=localhost;Initial Catalog=db-biblioteca;Integrated Security=True";
 SqlConnection connessioneSql = new SqlConnection(stringaDiConnessione);
 
-try
-{
-    connessioneSql.Open();
-    string titolo = "Harry Potter";
-    string autore = "J. K. Rowling";
-    int anno = 1999;
-    string settore = "Romanzo";
-    int isRented = 0;
-    int numPagine = 500;
-    string scaffale = "A5";
-
-    string query = $"INSERT INTO Libro(Titolo, Autore, Anno, Settore, isRented, NumPagine, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{numPagine}', '{scaffale}')";
-    SqlCommand cmd = new SqlCommand(query, connessioneSql);
-    cmd.ExecuteNonQuery();
-} catch (Exception ex)
-{
-    Console.WriteLine(ex.ToString());
-} finally
-{
-    connessioneSql.Close();
-}
-
 
 // lista di oggetti Documento
 List<Documento> ListaDocumenti = new List<Documento>();
@@ -261,6 +239,8 @@ void RicercaPrestito()
 // funzione per inserire un documento
 void InserisciDocumento()
 {
+    int isRented = 0;
+
     Console.WriteLine("Salve, per effettuare l'inserimento di un documento inserisca le seguenti informazioni");
 
     Console.WriteLine("Libro o Dvd? L/D");
@@ -272,22 +252,60 @@ void InserisciDocumento()
     Console.WriteLine("inserisci l'autore");
     string autore = Console.ReadLine();
 
+    Console.WriteLine("inserisci l'anno di uscita");
+    int anno = Convert.ToInt32(Console.ReadLine());
+
+    Console.WriteLine("inserisci il settore");
+    string settore = Console.ReadLine();
+
+    Console.WriteLine("inserisci lo scaffale");
+    string scaffale = Console.ReadLine();
+
     switch (option)
     {
         // inserimento libro
         case "L":
+
             Console.WriteLine("inserisci il numero di pagine");
             int numPagine = Convert.ToInt32(Console.ReadLine());
-            Libro libro = new Libro(titolo, autore, numPagine);
-            ListaDocumenti.Add(libro);
+
+            try
+            {
+                connessioneSql.Open();
+                string query = $"INSERT INTO Libro(Titolo, Autore, Anno, Settore, isRented, NumPagine, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{numPagine}', '{scaffale}')";
+                SqlCommand cmd = new SqlCommand(query, connessioneSql);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                connessioneSql.Close();
+            }
+
             break;
 
         // inserimento Dvd
         case "D":
             Console.WriteLine("inserisci la durata");
             int durata = Convert.ToInt32(Console.ReadLine());
-            Dvd dvd = new Dvd(titolo, autore, durata);
-            ListaDocumenti.Add(dvd);
+            try
+            {
+                connessioneSql.Open();
+                string query = $"INSERT INTO Dvd(Titolo, Autore, Anno, Settore, isRented, durata, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{durata}', '{scaffale}')";
+                SqlCommand cmd = new SqlCommand(query, connessioneSql);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                connessioneSql.Close();
+            }
             break;
 
         default:
