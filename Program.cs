@@ -271,9 +271,16 @@ void InserisciDocumento()
 
             try
             {
+                // Apro la connessione al DB
                 connessioneSql.Open();
+
+                // Scrivo la query di inserimento
                 string query = $"INSERT INTO Libro(Titolo, Autore, Anno, Settore, isRented, NumPagine, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{numPagine}', '{scaffale}')";
+                
+                // Creo il comando
                 SqlCommand cmd = new SqlCommand(query, connessioneSql);
+
+                // Eseguo il comando
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -282,20 +289,28 @@ void InserisciDocumento()
             }
             finally
             {
+                // Chiudo la connessione al DB
                 connessioneSql.Close();
             }
-
             break;
 
         // inserimento Dvd
         case "D":
+
             Console.WriteLine("inserisci la durata");
             int durata = Convert.ToInt32(Console.ReadLine());
             try
             {
+                // Apro la connessione al DB
                 connessioneSql.Open();
+
+                // Scrivo la query
                 string query = $"INSERT INTO Dvd(Titolo, Autore, Anno, Settore, isRented, durata, Scaffale) VALUES ('{titolo}', '{autore}', '{anno}', '{settore}', '{isRented}', '{durata}', '{scaffale}')";
+                
+                // Creo il comando
                 SqlCommand cmd = new SqlCommand(query, connessioneSql);
+                
+                // Eseguo il comando
                 cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -304,6 +319,7 @@ void InserisciDocumento()
             }
             finally
             {
+                // Chiudo la connessione al DB
                 connessioneSql.Close();
             }
             break;
@@ -337,49 +353,59 @@ void EffettuaPrestito()
     Console.WriteLine("inserisci un recapito telefonico");
     string phone = Console.ReadLine();
 
-    Utente utente = new Utente(nome, cognome, email, password, phone);
-
-    ListaUtente.Add(utente);
-
-    Console.WriteLine("che documento vorrebbe leggere? (codice o titolo)");
-
-    string titolo = Console.ReadLine();
-
-    // cerco una corrispondenza con il titolo
-    foreach (Documento documento in ListaDocumenti)
+    try
     {
-        if (documento.Titolo == titolo)
+        // Apro la connessione al DB
+        connessioneSql.Open();
+
+        // Scrivo la query
+        string query = $"INSERT INTO Utente(nome, cognome, email, password, telefono) VALUES ('{nome}', '{cognome}', '{email}', '{password}', '{phone}')";
+
+        // Creo il comando
+        SqlCommand cmd = new SqlCommand(query, connessioneSql);
+
+        // Eseguo il comando
+        cmd.ExecuteNonQuery();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.ToString());
+    }
+    finally
+    {
+        // Chiudo la connessione al DB
+        connessioneSql.Close();
+    }
+
+    Console.WriteLine("che documento vorrebbe leggere? (titolo)");
+
+    string titolo_libro = Console.ReadLine();
+
+    try
+    {
+        connessioneSql.Open();
+        string query_titolo = $"SELECT * FROM Libro WHERE Titolo=@titolo";
+        SqlCommand cmd_titolo = new SqlCommand(query_titolo, connessioneSql);
+        cmd_titolo.Parameters.Add(new SqlParameter("@titolo", titolo_libro));
+        SqlDataReader reader = cmd_titolo.ExecuteReader();
+
+        while (reader.Read())
         {
-            if (documento.IsRented != true)
-            {
-                documento.IsRented = true;
-
-                success = true;
-
-                DateTime thisDay = DateTime.Today;
-
-                Prestito prestito = new Prestito(thisDay.ToString("d"), "30/09/2022", utente, documento);
-
-                ListaPrestito.Add(prestito);
-
-                Console.WriteLine("\r\n");
-                Console.WriteLine("Il signor " + prestito.User.Cognome + " ha effettuato il noleggio del documento " + prestito.Document.Titolo);
-                Console.WriteLine("\r\n");
-            }
-
-            else
-            {
-                Console.WriteLine("\r\n");
-                Console.WriteLine("il documento è già in prestito");
-                Console.WriteLine("\r\n");
-            }
+            int id = reader.GetInt32(0);
+            string titolo = reader.GetString(1);
+            string autore = reader.GetString(2);
+            Console.WriteLine("{0}\t{1}\t{2}", id, titolo, autore);
         }
     }
-
-    if (success == false)
+    catch (Exception ex)
     {
-        Console.WriteLine("\r\n");
-        Console.WriteLine("il documento non è presente in biblioteca");
-        Console.WriteLine("\r\n");
+        Console.WriteLine(ex.ToString());
     }
+    finally
+    {
+        // Chiudo la connessione al DB
+        connessioneSql.Close();
+    }
+    
+
 }
